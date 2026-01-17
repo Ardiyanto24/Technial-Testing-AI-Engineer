@@ -6,6 +6,7 @@ from app.stores.base import VectorStore
 from app.services.embedder import Embedder
 
 
+# Build the LangGraph workflow with injected dependencies (no module-level globals)
 def build_workflow(
     store: VectorStore,
     embedder: Embedder,
@@ -13,16 +14,18 @@ def build_workflow(
     snippet_len: int,
 ):
     """
-    Build and compile a LangGraph workflow with injected dependencies.
-    Returns a compiled graph (chain) that can be invoked with {"question": "..."}.
+    Build and compile a LangGraph workflow.
+    The compiled graph can be invoked with: {"question": "..."}.
     """
 
+    # Retrieve context: embed question -> vector store search -> fill state["context"]
     def retrieve(state: RagState) -> RagState:
         query = state["question"]
         vector = embedder.embed(query)
         state["context"] = store.search(vector, top_k=top_k)
         return state
 
+    # Answer: produce a short snippet from the best context match
     def answer(state: RagState) -> RagState:
         ctx = state.get("context", [])
         state["answer"] = (
@@ -30,6 +33,7 @@ def build_workflow(
         )
         return state
 
+    # Wire nodes into a simple retrieve -> answer flow
     workflow = StateGraph(RagState)
     workflow.add_node("retrieve", retrieve)
     workflow.add_node("answer", answer)
