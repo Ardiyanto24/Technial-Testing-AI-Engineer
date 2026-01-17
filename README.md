@@ -62,6 +62,7 @@ project_root/
 │       └── qdrant_store.py # Qdrant-backed store
 └── notes.md                # Design decisions & trade-offs
 
+---
 
 ## ▶️ Running the Application
 1. Create and activate a virtual environment
