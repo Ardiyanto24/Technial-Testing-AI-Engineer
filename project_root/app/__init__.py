@@ -1,1 +1,1 @@
-# this is for package
+# Marks this directory as a Python package
