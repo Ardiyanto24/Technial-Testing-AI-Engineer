@@ -61,3 +61,19 @@ project_root/
 │       ├── memory_store.py # In-memory fallback store
 │       └── qdrant_store.py # Qdrant-backed store
 └── notes.md                # Design decisions & trade-offs
+
+
+## ▶️ Running the Application
+1. Create and activate a virtual environment
+python -m venv .venv
+.\.venv\Scripts\activate   # Windows
+
+2. Install dependencies
+pip install fastapi uvicorn pydantic pydantic-settings qdrant-client langgraph
+
+3. Start the server
+uvicorn main:app --reload
+
+The API will be available at:
+http://127.0.0.1:8000
+Swagger UI: http://127.0.0.1:8000/docs
