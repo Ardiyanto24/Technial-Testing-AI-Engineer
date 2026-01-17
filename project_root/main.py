@@ -8,21 +8,21 @@ from app.dependencies import create_store, create_services
 app = FastAPI(title="Learning RAG Demo")
 settings = get_settings()
 
-# router bisa di-include sekarang karena handler ambil dependency dari app.state saat request
+# Register API routes (dependencies are resolved from app.state per request)
 app.include_router(create_router())
 
 @app.on_event("startup")
 def on_startup():
-    # 1) init embedder
+    # Initialize runtime dependencies at startup (avoid module-level globals)
     embedder = Embedder(vector_size=settings.vector_size)
 
-    # 2) init store (qdrant -> fallback memory)
+    # Prefer Qdrant; fall back to in-memory store if unavailable
     store, store_kind = create_store(settings)
 
-    # 3) init workflow + services
+    # Build workflow + service layer
     chain, doc_service, rag_service = create_services(store, embedder, settings)
 
-    # 4) save to app.state (no module-level globals)
+    # Store dependencies in app.state for API handlers
     app.state.embedder = embedder
     app.state.store = store
     app.state.store_kind = store_kind
