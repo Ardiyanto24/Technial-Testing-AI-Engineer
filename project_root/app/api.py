@@ -10,9 +10,12 @@ from app.schemas import (
     StatusResponse,
 )
 
+
+# Build API router (thin endpoints)
 def create_router() -> APIRouter:
     router = APIRouter()
 
+    # Ask a question using the RAG pipeline
     @router.post("/ask", response_model=AskResponse)
     def ask_question(req: QuestionRequest, request: Request):
         question = (req.question or "").strip()
@@ -37,6 +40,7 @@ def create_router() -> APIRouter:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+    # Add a document to the vector store
     @router.post("/add", response_model=AddResponse)
     def add_document(req: DocumentRequest, request: Request):
         text = (req.text or "").strip()
@@ -55,6 +59,7 @@ def create_router() -> APIRouter:
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
 
+    # Health and system status endpoint
     @router.get("/status", response_model=StatusResponse)
     def status(request: Request):
         store = request.app.state.store
@@ -65,7 +70,7 @@ def create_router() -> APIRouter:
             "store_ready": store.is_ready(),
             "docs_count": store.count(),
             "graph_ready": chain is not None,
-            "store_kind": store_kind,  # opsional: jujur pakai qdrant/memory
+            "store_kind": store_kind,
         }
 
     return router
